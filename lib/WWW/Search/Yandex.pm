@@ -1,7 +1,7 @@
 ### Yandex.pm
 ###
 ### Copyright (C) 2004 by Artur Penttinen
-### Last modified: <Friday, 13-Aug-2004 01:12:36; artur>
+### Last modified: <Saturday, 14-Aug-2004 11:41:15; artur>
 ###
 ### $Id:$
 ###
@@ -12,7 +12,7 @@ use 5.008;
 use strict;
 use warnings;
 
-use WWW::Search qw(generic_option);
+use WWW::Search;
 use WWW::SearchResult;
 use HTML::TreeBuilder;
 use URI;
@@ -21,7 +21,7 @@ use Encode qw(from_to);
 use Encode::Byte;
 
 our @ISA = qw (WWW::Search);
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our $MAINTAINER = 'Artur Penttinen <artur+perl@niif.spb.su>';
 
 our $iMustPause = 1;
