@@ -1,0 +1,7 @@
+Revision history for Perl extension WWW::Search::Yandex.
+
+0.01  Wed Aug  4 12:03:04 2004
+	- original version; created by h2xs 1.23 with options
+	  -X -c -n WWW::Search::Yandex
+	- This is the first public release.
+

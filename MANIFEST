@@ -1,0 +1,7 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/www-search-yandex.t
+lib/WWW/Search/Yandex.pm
+example/yandex-ru.pl

@@ -1,0 +1,12 @@
+use 5.008;
+use ExtUtils::MakeMaker;
+# See lib/ExtUtils/MakeMaker.pm for details of how to influence
+# the contents of the Makefile that is written.
+WriteMakefile(
+    NAME              => 'WWW::Search::Yandex',
+    VERSION_FROM      => 'lib/WWW/Search/Yandex.pm',
+    PREREQ_PM         => {'WWW::Search' => 2.528},
+    ($] >= 5.005 ?
+      (ABSTRACT_FROM  => 'lib/WWW/Search/Yandex.pm',
+       AUTHOR         => 'Artur Penttinen <artur+perl@niif.spb.su>') : ()),
+);
