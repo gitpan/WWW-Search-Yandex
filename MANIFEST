@@ -5,3 +5,4 @@ README
 t/www-search-yandex.t
 lib/WWW/Search/Yandex.pm
 example/yandex-ru.pl
+META.yml                                 Module meta-data (added by MakeMaker)

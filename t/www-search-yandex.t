@@ -11,6 +11,7 @@ BEGIN {
 };
 
 my $srch = new WWW::Search ("Yandex",'charset' => "koi8-r");
+$srch->env_proxy ("yes");
 ok (defined ($srch),"WWW::Search instance");
 # $srch->{'_debug'} = 10;
 
@@ -21,7 +22,7 @@ while (my $res = $srch->next_result ()) {
     printf "%2d: %s\n",++$cnt,$res->url ();
 }
 
-ok ($cnt > 10,"results count: $cnt");
+ok ($cnt >= 10,"results count: $cnt");
 
 exit;
 

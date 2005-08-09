@@ -21,7 +21,7 @@ use Encode qw(from_to);
 use Encode::Byte;
 
 our @ISA = qw (WWW::Search);
-our $VERSION = '0.02';
+our $VERSION = '0.04';
 our $MAINTAINER = 'Artur Penttinen <artur+perl@niif.spb.su>';
 
 our $iMustPause = 1;
@@ -456,7 +456,7 @@ __END__
 
 =head1 NAME
 
-WWW::Search::Yandex - class for searching F<http://www.rambler.ru>.
+WWW::Search::Yandex - class for searching F<http://www.yandex.ru>.
 
 =head1 SYNOPSIS
 

@@ -7,3 +7,9 @@ Revision history for Perl extension WWW::Search::Yandex.
 
 0.02  Sat Aug 14 11:42:58 2004
 	- Added prereq modules to Makefile.PM.
+
+0.03  Sun Aug 15 23:39:16 2004
+	- Error with rambler.
+
+0.04  Tue Aug  9 21:19:05 2005
+	- Small changes in test script.
