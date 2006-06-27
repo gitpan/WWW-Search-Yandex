@@ -12,7 +12,8 @@ BEGIN {
 
 my $srch = new WWW::Search ("Yandex",'charset' => "koi8-r");
 $srch->env_proxy ("yes");
-ok (defined ($srch),"WWW::Search instance");
+
+isa_ok ($srch,"WWW::Search");
 # $srch->{'_debug'} = 10;
 
 $srch->native_query ("Артур Пенттинен");
@@ -22,7 +23,7 @@ while (my $res = $srch->next_result ()) {
     printf "%2d: %s\n",++$cnt,$res->url ();
 }
 
-ok ($cnt >= 10,"results count: $cnt");
+ok ($cnt > 9,"results count: $cnt");
 
 exit;
 

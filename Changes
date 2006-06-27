@@ -13,3 +13,6 @@ Revision history for Perl extension WWW::Search::Yandex.
 
 0.04  Tue Aug  9 21:19:05 2005
 	- Small changes in test script.
+
+0.05  Tue Jun 27 14:53:16 2006
+	- Corrected charset name.

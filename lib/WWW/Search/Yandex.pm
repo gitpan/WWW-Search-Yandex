@@ -1,7 +1,7 @@
 ### Yandex.pm
 ###
 ### Copyright (C) 2004 by Artur Penttinen
-### Last modified: <Saturday, 14-Aug-2004 11:41:15; artur>
+### Last modified: <Tuesday, 27-Jun-2006 14:56 EEST>
 ###
 ### $Id:$
 ###
@@ -21,7 +21,7 @@ use Encode qw(from_to);
 use Encode::Byte;
 
 our @ISA = qw (WWW::Search);
-our $VERSION = '0.04';
+our $VERSION = (qw$Revision: 0.04 $)[1];
 our $MAINTAINER = 'Artur Penttinen <artur+perl@niif.spb.su>';
 
 our $iMustPause = 1;
@@ -33,7 +33,7 @@ sub native_setup_search ($$$) {
       if ($self->{'_debug'});
 
     if ($self->{'charset'} ne "windows-1251") {
-	Encode::from_to ($query,$self->{'charset'},"windows-1251");
+	Encode::from_to ($query,$self->{'charset'},"cp1251");
     }
 
     $self->{'native_query'} = uri_escape ($query);
@@ -433,7 +433,7 @@ sub preprocess_results_page ($$) {
     my ($self,$text) = @_;
 
     if ($self->{'charset'} ne "windows-1251") {
-	Encode::from_to ($text,"windows-1251",$self->{'charset'});
+	Encode::from_to ($text,"cp1251",$self->{'charset'});
     }
 
     return $text;

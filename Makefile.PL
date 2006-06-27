@@ -3,14 +3,19 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    NAME              => 'WWW::Search::Yandex',
-    VERSION_FROM      => 'lib/WWW/Search/Yandex.pm',
-    PREREQ_PM         => { 'WWW::Search' => 2.528,
-			   'WWW::SearchResult' => 2.061,
-			   'HTML::TreeBuilder' => 3.13,
-			   'URI' => 1.31,
-			   'URI::Escape' => 3.26 },
+    NAME      => 'WWW::Search::Yandex',
+    VERSION   => '0.05',
+    PREREQ_PM => { 'WWW::Search' => 2.528,
+		   'WWW::SearchResult' => 2.061,
+		   'HTML::TreeBuilder' => 3.13,
+		   'URI' => 1.31,
+		   'URI::Escape' => 3.26 },
     ($] >= 5.005 ?
-      (ABSTRACT_FROM  => 'lib/WWW/Search/Yandex.pm',
-       AUTHOR         => 'Artur Penttinen <artur+perl@niif.spb.su>') : ()),
+     (ABSTRACT_FROM  => 'lib/WWW/Search/Yandex.pm',
+      AUTHOR         => 'Artur Penttinen <artur+perl@niif.spb.su>') : ()),
+    clean     => { FILES => "WWW-Search-*.tar.gz" .
+                     " *~ */*~ */*/*~" },
+    dist      => { COMPRESS => "gzip -9f", SUFFIX => "gz" }
 );
+
+exit;
