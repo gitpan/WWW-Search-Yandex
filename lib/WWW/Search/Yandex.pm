@@ -12,22 +12,21 @@ use 5.008;
 use strict;
 use warnings;
 
-use WWW::Search;
+use base "WWW::Search";
 use WWW::SearchResult;
 use HTML::TreeBuilder;
 use URI;
 use URI::Escape;
-use Encode qw(from_to);
+use Encode qw( from_to );
 use Encode::Byte;
 
-our @ISA = qw (WWW::Search);
-our $VERSION = (qw$Revision: 0.04 $)[1];
+our $VERSION = qw$Revision: 0.05 $[1];
 our $MAINTAINER = 'Artur Penttinen <artur+perl@niif.spb.su>';
 
 our $iMustPause = 1;
 
 sub native_setup_search ($$$) {
-    my ($self,$query,$opt) = @_;
+    my ( $self,$query,$opt ) = @_;
 
     printf STDERR " + native_setup_search('%s','%s')\n",$query,$opt || ""
       if ($self->{'_debug'});
@@ -37,7 +36,7 @@ sub native_setup_search ($$$) {
     }
 
     $self->{'native_query'} = uri_escape ($query);
-    $self->{_next_to_retrieve} = 0;
+    $self->{'_next_to_retrieve'} = 0;
 
     $self->{'agent_name'} = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)';
     $self->{'agent_e_mail'} = "nobody\@niif.spb.su";
@@ -78,7 +77,7 @@ sub native_setup_search ($$$) {
 }
 
 sub parse_tree ($$) {
-    my ($self,$oTree) = @_;
+    my ( $self,$oTree ) = @_;
 
     printf STDERR " + %s got a tree $oTree\n",__PACKAGE__
       if ($self->{'_debug'} >= 2);
@@ -88,15 +87,15 @@ sub parse_tree ($$) {
     $iMustPause++;
 
     my $hits_found = 0;
-    my $WS = q{[\t\r\n\240\ ]};
+
     # Only try to parse the hit count if we haven't done so already:
     printf STDERR " + start, approx_h_c is ==%d==\n",
       $self->approximate_hit_count() if ($self->{'_debug'} >= 2);
 
     if ($self->approximate_hit_count () < 1) {
 	# Sometimes the hit count is inside a <DIV> tag:
-	my @aoDIV = $oTree->look_down('_tag' => 'div',
-				      'class' => 'ygbody');
+	my @aoDIV = $oTree->look_down('_tag' => "div",
+				      'class' => "ygbody");
 
       DIV_TAG:
 	foreach my $oDIV (@aoDIV) {
@@ -109,7 +108,7 @@ sub parse_tree ($$) {
 	    print STDERR " +   TEXT ==$s==\n" if ($self->{'_debug'} >= 2);
 
 	    my $iCount = $self->_string_has_count ($s);
-	    $iCount =~ tr|,\.||d;
+	    $iCount =~ tr#,\.##d;
 
 	    if ($iCount >= 0) {
 		$self->approximate_result_count ($iCount);
@@ -120,7 +119,7 @@ sub parse_tree ($$) {
 
     if ($self->approximate_hit_count () < 1) {
 	# Sometimes the hit count is inside a <small> tag:
-	my @aoDIV = $oTree->look_down ('_tag' => 'small');
+	my @aoDIV = $oTree->look_down ('_tag' => "small");
 
       SMALL_TAG:
 	foreach my $oDIV (@aoDIV) {
@@ -133,7 +132,7 @@ sub parse_tree ($$) {
 	    print STDERR " +   TEXT ==$s==\n" if ($self->{'_debug'} >= 2);
 
 	    my $iCount = $self->_string_has_count ($s);
-	    $iCount =~ tr|,\.||d;
+	    $iCount =~ tr#,\.##d;
 
 	    if ($iCount >= 0) {
 		$self->approximate_result_count ($iCount);
@@ -152,32 +151,32 @@ sub parse_tree ($$) {
 	# Sanity check:
 	next LI_TAG unless (ref ($oLI));
 
-	my @aoA = $oLI->look_down ('_tag' => 'a');
+	my @aoA = $oLI->look_down ('_tag' => "a");
 	my $oA = shift @aoA;
 	next LI_TAG unless (ref($oA));
 
-	my $sTitle = $oA->as_text || '';
-	my $sURL = $oA->attr ("href") || '';
-	next LI_TAG unless ($sURL ne '');
+	my $sTitle = $oA->as_text || "";
+	my $sURL = $oA->attr ("href") || "";
+	next LI_TAG unless ($sURL ne "");
 
 	print STDERR " +   raw     URL is ==$sURL==\n"
 	  if ($self->{'_debug'} >= 2);
 
 	# Throw out Yahoo category links that pop up on a failed query:
-	next LI_TAG if ($sURL =~ m|/search3/empty/catlink/|);
+	next LI_TAG if ($sURL =~ m#/search3/empty/catlink/#);
 	# Throw out Yahoo suggested further-search:
-	next LI_TAG if ($sURL =~ m|search.yahoo.com/search|);
+	next LI_TAG if ($sURL =~ m#search.yahoo.com/search#);
 
 	unshift @aoA,$oA;
 	# Strip off the yahoo.com redirect part of the URL:
-	$sURL =~ s|\A.*?\*-||;
+	$sURL =~ s#\A.*?\*-##;
 	print STDERR " +   cooked  URL is ==$sURL==\n"
 	  if ($self->{'_debug'} >= 2);
 
 	# Delete the useless human-readable restatement of the URL (first
 	# <EM> tag we come across):
 	my $oEM = $oLI->look_down ('_tag' => "em");
-	if (ref($oEM)) {
+	if (ref $oEM) {
 	    $oEM->detach ();
 	    $oEM->delete ();
 	} # if
@@ -193,7 +192,7 @@ sub parse_tree ($$) {
 	  if ($self->{'_debug'} >= 2);
 
 	# Grab stuff off the end of the description:
-	my $sSize = $1 if ($sDesc =~ s|\s+(-\s+)+(\d+k?)(\s+-)+\s+\Z||);
+	my $sSize = $1 if ($sDesc =~ s#\s+(-\s+)+(\d+k?)(\s+-)+\s+\Z##);
 	$sSize ||= "";
 	print STDERR " +   cooked  sDesc is ==$sDesc==\n"
 	  if ($self->{'_debug'} >= 2);
@@ -205,12 +204,13 @@ sub parse_tree ($$) {
 	$hit->title ($sTitle);
 	$hit->description ($sDesc);
 	$hit->size ($sSize);
-	push @{$self->{'cache'}},$hit;
+	push @{ $self->{'cache'} },$hit;
 	$hits_found++;
     } # foreach LI_TAG
 
     # Now try to find the "next page" link:
-    my @aoA = $oTree->look_down('_tag' => 'a');
+    my @aoA = $oTree->look_down('_tag' => "a");
+
   NEXT_A:
     foreach my $oA (reverse @aoA) {
 	next NEXT_A unless (ref ($oA));
@@ -222,7 +222,7 @@ sub parse_tree ($$) {
 	if ($self->_a_is_next_link ($oA)) {
 	    my $sURL = $oA->attr ('href');
 	    # Delete Yahoo-redirect portion of URL:
-	    $sURL =~ s|\A.+?\*?-?(?=http)||;
+	    $sURL =~ s#\A.+?\*?-?(?=http)##;
 	    $self->{'_next_url'} = $self->absurl ($self->{'_prev_url'},$sURL);
 	    last NEXT_A;
 	} # if
@@ -231,13 +231,13 @@ sub parse_tree ($$) {
 }
 
 sub native_retrieve_some ($) {
-    my ($self) = @_;
+    my ( $self ) = @_;
 
     printf STDERR " +   %s::native_retrieve_some ()\n",__PACKAGE__
       if ($self->{'_debug'});
 
     # Fast exit if already done:
-    return unless (defined ($self->{'_next_url'}));
+    return unless (defined $self->{'_next_url'});
 
     # If this is not the first page of results, sleep so as to not
     # overload the server:
@@ -284,7 +284,7 @@ sub native_retrieve_some ($) {
     else {
 	print STDERR " +   creating new _treebuilder\n" if ($self->{_debug});
 	$tree = new HTML::TreeBuilder ();	# use all default options
-	$tree->store_comments ('yes');
+	$tree->store_comments ("yes");
 	$self->{'_treebuilder'} = $tree;
     }
 
@@ -303,7 +303,7 @@ sub native_retrieve_some ($) {
 }
 
 sub http_request ($$$) {
-    my ($self,$method,$url) = @_;
+    my ( $self,$method,$url ) = @_;
     my $response;
 
     if ($self->{'_debug'} >= 50) {
@@ -324,7 +324,7 @@ sub http_request ($$$) {
 	    my $resp = $ua->request($request);
 	    $self->{'_http_referer'} = "http://www.yandex.ru";
 	    my $cookie = $resp->header ("Set-Cookie");
-	    if (defined ($cookie) && $cookie =~ m|yandexuid=(\S+);|) {
+	    if (defined ($cookie) && $cookie =~ m#yandexuid=(\S+);#) {
 		$self->{'_cookie_yandexuid'} = $1;
 	    }
 
@@ -353,7 +353,7 @@ sub http_request ($$$) {
 	    my $s = $self->{'_http_referer'};
 	    printf STDERR " +    referer(%s), ref(s) = %s\n",$s,ref($s)
 	      if ($self->{'_debug'});
-	    $s = $s->as_string () if (ref ($s) =~ m|URI|);
+	    $s = $s->as_string () if (ref ($s) =~ m#URI#);
 	    $request->referer ($s);
 	} # if referer
 
@@ -385,18 +385,18 @@ sub http_request ($$$) {
 
 	    last TRY_GET if ($response->is_success ());
 	    last TRY_GET if ($response->is_error ());
-	    last TRY_GET if ($response->headers ()->header ('Client-Warning') =~ m|redirect loop detected|i);
+	    last TRY_GET if ($response->headers ()->header ("Client-Warning") =~ m|redirect loop detected|i);
 
 	    if ($response->is_redirect () ||
 		$response->message =~ m|Object moved|i) {
 		my $sURL = $response->request->uri->as_string;
-		my $sURLredir = $response->headers->header ('Location');
+		my $sURLredir = $response->headers->header ("Location");
 		# Low-level loop detection:
 		last TRY_GET if ($sURLredir eq $sURL);
 		print STDERR " +   'Object moved' from $sURL to $sURLredir\n"
 		  if ($self->{'_debug'} >= 2);
 		# Follow the redirect:
-		$request = new HTTP::Request('GET',
+		$request = new HTTP::Request("GET",
 					     URI->new_abs($sURLredir, $sURL));
 		$request->referer ($sURL);
 		$self->{'_cookie_jar'}->add_cookie_header ($request)
@@ -408,29 +408,30 @@ sub http_request ($$$) {
 	    } # if
 	} # while infinite
     } # if not from_file
+
     return $response;
 } # http_request
 
 
 sub strip ($$) {
-    my ($self,$s) = @_;
+    my ( $self,$s ) = @_;
     $s = &WWW::Search::strip_tags ($s);
-    $s =~ s!\A[\240\t\r\n\ ]+  !!x;
-    $s =~ s!  [\240\t\r\n\ ]+\Z!!x;
+    $s =~ s#\A[\240\t\r\n\ ]+  ##x;
+    $s =~ s#  [\240\t\r\n\ ]+\Z##x;
     return $s;
 }
 
-sub _a_is_next_link ($$) {
-    my ($self,$oA) = @_;
+sub _a_is_next_link ($;$) {
+    my ( $self,$oA ) = @_;
     return 0 unless (defined ($oA));
-    my $t = $oA->as_text; $t =~ s|....$||;
+    my $t = $oA->as_text; $t =~ s#....$##; #
     return ($t eq "ıÌÂ‰Ë·¸‚Û" ||
 	    $t eq "”Ã≈ƒ’¿›¡—" ||
 	    $t eq "&Oacute;&Igrave;&Aring;&Auml;&Otilde;&Agrave;&Yacute;&Aacute;&Ntilde;&nbsp;<span>&acirc;&#134;&#146;</span>");
 }
 
 sub preprocess_results_page ($$) {
-    my ($self,$text) = @_;
+    my ( $self,$text ) = @_;
 
     if ($self->{'charset'} ne "windows-1251") {
 	Encode::from_to ($text,"cp1251",$self->{'charset'});
@@ -440,11 +441,11 @@ sub preprocess_results_page ($$) {
 }
 
 sub approximate_result_count ($) {
-    my ($self) = @_;
+    my ( $self ) = @_;
 
-    my $str = $self->response->headers ()->header ('title')
+    my $str = $self->response->headers ()->header ("title")
       or return 0;
-    if ($str =~ m|\((\d+)\)\s*$|) {
+    if ($str =~ m#\((\d+)\)\s*$#) {	#
 	return $1;
     }
     return 0;
