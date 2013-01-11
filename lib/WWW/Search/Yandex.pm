@@ -17,7 +17,7 @@ use WWW::SearchResult;
 use HTML::TreeBuilder;
 use URI;
 use URI::Escape;
-use Encode qw( from_to );
+use Encode qw( from_to decode );
 use Encode::Byte;
 
 our $VERSION = qw$Revision: 0.05 $[1];
@@ -31,11 +31,7 @@ sub native_setup_search ($$$) {
     printf STDERR " + native_setup_search('%s','%s')\n",$query,$opt || ""
       if ($self->{'_debug'});
 
-    if ($self->{'charset'} ne "windows-1251") {
-	Encode::from_to ($query,$self->{'charset'},"cp1251");
-    }
-
-    $self->{'native_query'} = uri_escape ($query);
+    $self->{'native_query'} = uri_escape_utf8($query);
     $self->{'_next_to_retrieve'} = 0;
 
     $self->{'agent_name'} = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)';
@@ -431,13 +427,9 @@ sub _a_is_next_link ($;$) {
 }
 
 sub preprocess_results_page ($$) {
-    my ( $self,$text ) = @_;
+    my ( $self, $text ) = @_;
 
-    if ($self->{'charset'} ne "windows-1251") {
-	Encode::from_to ($text,"cp1251",$self->{'charset'});
-    }
-
-    return $text;
+    return decode($self->{'charset'} || "utf8", $text);
 }
 
 sub approximate_result_count ($) {
@@ -482,7 +474,7 @@ and C<WWW::Search::Yahoo>.
 
 =head1 SEE ALSO
 
-C<WWW::Search>, F<http://www.yandex.ru/>, F<http://www.ya.ru>.
+L<WWW::Search>, F<http://www.yandex.ru/>, F<http://www.ya.ru>.
 
 =head1 AUTHOR
 
